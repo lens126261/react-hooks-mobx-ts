@@ -8,7 +8,7 @@ tag:
 - 面向对象
 - prototype
 - __proto__
-category: JavaScript
+category: blog
 author: lens
 description: 原型、原型链
 ---

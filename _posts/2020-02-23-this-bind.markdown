@@ -7,7 +7,7 @@ headerImage: false
 tag:
 - this
 - call、apply、bind
-category: JavaScript
+category: blog
 author: lens
 description: this指向
 ---
