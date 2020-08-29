@@ -7,10 +7,10 @@ headerImage: false
 tag:
     - markdown
     - elements
-star: true
+star: false
 category: blog
 author: Lens
-description: Markdown summary with different options
+description: js基础之this
 ---
 
 ## 关于 this 指向的五种情况
