@@ -1,7 +1,7 @@
 ---
-title: "Markdown Common Element1111s"
+title: "详解js中的this以及call、apply、bind"
 layout: post
-date: 2016-02-24 22:44
+date: 2019-08-24 22:44
 image: /assets/images/markdown.jpg
 headerImage: false
 tag:
@@ -9,207 +9,266 @@ tag:
     - elements
 star: true
 category: blog
-author: johndoe
+author: Lens
 description: Markdown summary with different options
 ---
 
-## Basic formatting
+## 关于 this 指向的五种情况
 
-This note **demonstrates** some of what [Markdown][1] is _capable of doing_.
+### 全局上下文中的 this
 
-And that's how to do it.
+全局上下文中 this 指向 window，这种情况较为简单
 
-{% highlight html %}
-This note **demonstrates** some of what [Markdown][some/link] is _capable of doing_.
-{% endhighlight %}
+```
+this === window
+```
 
----
+### 事件绑定方法中的 this
 
-## Headings
+给元素的某个事件行为绑定方法，当事件行为触发，方法执行，方法中的 this 指向当前元素本身。
 
-There are six levels of headings. They correspond with the six levels of HTML headings. You've probably noticed them already in the page. Each level down uses one more hash character. But we are using just 4 of them.
-
-# Headings can be small
-
-## Headings can be small
-
-### Headings can be small
-
-#### Headings can be small
-
-{% highlight raw %}
-
-# Heading
-
-## Heading
-
-### Heading
-
-#### Heading
-
-{% endhighlight %}
-
----
-
-## Lists
-
-### Ordered list
-
-1. Item 1
-2. A second item
-3. Number 3
-
-{% highlight raw %}
-
-1. Item 1
-2. A second item
-3. Number 3
-   {% endhighlight %}
-
-### Unordered list
-
--   An item
--   Another item
--   Yet another item
--   And there's more...
-
-{% highlight raw %}
-
--   An item
--   Another item
--   Yet another item
--   And there's more...
-    {% endhighlight %}
-
----
-
-## Paragraph modifiers
-
-### Quote
-
-> Here is a quote. What this is should be self explanatory. Quotes are automatically indented when they are used.
-
-{% highlight raw %}
-
-> Here is a quote. What this is should be self explanatory.
-> {% endhighlight raw %}
-
----
-
-## URLs
-
-URLs can be made in a handful of ways:
-
--   A named link to [Mark It Down][3].
--   Another named link to [Mark It Down](https://google.com/)
--   Sometimes you just want a URL like <https://google.com/>.
-
-{% highlight raw %}
-
--   A named link to [MarkItDown][3].
--   Another named link to [MarkItDown](https://google.com/)
--   Sometimes you just want a URL like <https://google.com/>.
-    {% endhighlight %}
-
----
-
-## Horizontal rule
-
-A horizontal rule is a line that goes across the middle of the page.
-It's sometimes handy for breaking things up.
-
-## {% highlight raw %}
-
-{% endhighlight %}
-
----
-
-## Images
-
-Markdown can also contain images. I'll need to add something here sometime.
-
-{% highlight raw %}
-![Markdowm Image][/image/url]
-{% endhighlight %}
-
-![Markdowm Image][5]
-
-_Figure Caption_?
-
-{% highlight raw %}
-![Markdowm Image][/image/url]
-
-<figcaption class="caption">Photo by John Doe</figcaption>
-{% endhighlight %}
-
-![Markdowm Image][5]
-
-<figcaption class="caption">Photo by John Doe</figcaption>
-
-_Bigger Images_?
-
-{% highlight raw %}
-![Markdowm Image][/image/url]{: class="bigger-image" }
-{% endhighlight %}
-
-![Markdowm Image][5]{: class="bigger-image" }
-
----
-
-## Code
-
-A HTML Example:
-
-{% highlight html %}
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Just a test</h1>
-</body>
-</html>
-{% endhighlight %}
-
-A CSS Example:
-
-{% highlight css %}
-pre {
-padding: 10px;
-font-size: .8em;
-white-space: pre;
+```
+let body = document.body;
+body.onclick=function(){
+	console.log(this) // body
 }
+```
 
-pre, table {
-width: 100%;
+再看一个例子：
+
+```
+let body = document.body;
+function func(){
+	console.log(this) // this指向window
 }
-
-code, pre, tt {
-font-family: Monaco, Consolas, Inconsolata, monospace, sans-serif;
-background: rgba(0,0,0,.05);
+body.onclick=function(){
+	console.log(this) // body
+    func()
 }
-{% endhighlight %}
+```
 
-A JS Example:
+特殊情况：在 IE6-8 中，基于 attachEvent 实现的 DOM2 事件绑定，事件触发，方法中的 this 指向 window
 
-{% highlight js %}
-// Sticky Header
-\$(window).scroll(function() {
+```
+body.attachEvent("onclick", function(){
+	console.log(this)  // window
+})
+```
 
-    if ($(window).scrollTop() > 900 && !$("body").hasClass('show-menu')) {
-        $('#hamburguer__open').fadeOut('fast');
-    } else if (!$("body").hasClass('show-menu')) {
-        $('#hamburguer__open').fadeIn('fast');
+### 普通函数执行中的 this
+
+函数执行（包含自执行函数执行、普通函数执行、对象成员访问调取方法执行等），只需要看函数执行的时候方法名前面是否有`.`，有的话，`.`前边是谁 this 就是谁，没有的话 this 指向 window（严格模式下是 undefined）
+
+1、自执行函数执行
+
+```
+(function(){
+	console.log(this)	// window，开启严格模式的话是undefined
+})()
+
+let obj = {
+	f: (function(){
+    	console.log(this)   // window
+        return function(){}
+	})()
+}
+obj.f()
+```
+
+2、普通函数执行
+
+```
+function func(){
+	console.log(this) // this指向window
+}
+func()
+```
+
+3、对象成员访问调取方法执行
+
+```
+function func(){
+	console.log(this) // this指向调用它的对象obj
+}
+let obj = {
+	f:func
+}
+obj.f()
+```
+
+### 构造函数中 this 指向
+
+构造函数体中的 this 是当前类的实例
+
+```
+function Fun(){
+	console.log(this) // this指向f
+}
+let f = new Fun()
+```
+
+### 箭头函数中 this 指向
+
+箭头函数中没有 this，它的 this 是继承自己所在上下文中的 this
+
+```
+let obj = {
+	fun: function(){
+    	console.log(this) // this指向调用它的对象
+    },
+    arrowFun: ()=>{
+    	console.log(this) // 箭头函数中没有this，继承所在上下文中的this
+    }
+}
+console.log(obj.fun()) // obj
+console.log(obj.arrowFun()) // window
+```
+
+强制改变 this 也不行
+
+```
+obj.sum.call(obj) // this还是指向window
+```
+
+## 强制改变 this 指向：call、apply、bind
+
+每个函数都是`Function`这个类的实例。在`Function`的 prototype（原型）上有三个方法：call、apply、bind，可以用来改变 this 指向。那么这三个方法有什么区别呢？
+
+```
+let obj = {
+	name: "obj"
+}
+function func(x,y){
+	console.log(this,x,y)
+}
+```
+
+call：\*\* [function].call([context],param1,param2,...)
+
+call 方法执行的时候会把[function]执行，并且把函数中的 this 指向为[context]，并且把 param1,param2 等参数分别传递给函数。
+
+```
+func.call(obj,1,2) // obj 1 2
+```
+
+第一个参数不传或者传递的是 null/undefined，非严格模式下 this 指向的是 window，严格模式下传递的是谁就是谁
+
+**apply：** [function].apply([context],[param1,param2,...])
+
+和 call 基本一样，只不过传递给函数的参数需要以数组的形式传递给 apply。apply 内部会再把数组一项项的传递给[function]，所以其结果和 call 是一样的。
+
+```
+func.apply(obj,[1,2]) // obj 1 2
+```
+
+**bind：** [function].bind([context],param1,param2,...)
+
+语法上 call 类似，但是作用和 call/apply 都不一样。
+
+call/apply 都是会立即执行当前函数，并且改变函数中的 this 指向。bind 不会立即执行当前函数,只是预先把函数中的 this 指向[context],把 params 这些参数预先存储起来。在调用的时候才会去执行。
+
+```
+func.bind(obj,1,2) // 此时func并没有执行
+func() // obj 1 2
+```
+
+假如现在有这样一个需求：把 func 函数绑定给 body 的 click 事件，要求当触发 body 的 click 事件后，执行 func，同时让 func 中的 this 指向 obj。
+
+```
+body.onclick=func.bind(obj)
+```
+
+但是 bind 方法是不兼容 ie6-8 的，那么不用 bind 我们怎么实现呢？
+
+```
+body.onclick=function(){
+	func.call(obj)
+}
+```
+
+使用 call 我们也可以实现同样的效果
+
+## call、apply、bind 的简单实现
+
+上文我们了解了 call、apply、bind 的使用以及他们之间的区别，下面我们来简单实现一下：
+
+**call 方法：**
+
+```
+Function.prototype.myCall = function(target, ...args) {
+  // this 为调用 myCall 的函数
+  const func = this;
+
+  // call方法只能用于function
+  if (typeof this !== "function") {
+    throw new TypeError("not a function")
+  }
+
+  // 在没有传值的情况下this指向window
+  let context = target || window
+
+  // 使function的this指向context
+  context.fn = func
+
+  // 将值分别传递给fn
+  let result = context.fn(...args)
+  return result
+};
+
+// 验证一下
+let obj = { name: "lp" }
+function foo(x,y) {
+  console.log(this.name, x, y)
+}
+foo.myCall(obj, 21, 30) // lp 21 30
+```
+
+**apply 方法：**
+
+apply 与 call 的唯一区别在于：apply 仅接受两个参数，第二个参数是一个数组
+
+```
+Function.prototype.myApply = function(target, args) {
+  // this 为调用 myApply 的函数
+  const func = this;
+
+  // call方法只能用于function
+  if (typeof this !== "function") {
+    throw new TypeError("not a function")
+  }
+
+  // 参数必须为数组
+  if(!Array.isArray(args)){
+  	throw new TypeError("not a Array")
+  }
+
+  // 在没有传值的情况下this指向window
+  let context = target || window
+
+  // 使function的this指向context
+  context.fn = func
+
+  // 将值分别传递给fn
+  let result = context.fn(...args)
+  return result
+};
+```
+
+**bind 方法：**
+bind 和 call 的唯一区别在于，bind 返回一个函数，不会立即执行。我们可以在 call 的基础上实现 bind 方法。
+
+```
+Function.prototype.myBind = function(context,...params){ // 默认不传的话指向window
+	// this为调用 myBind 的函数
+    const func = this;
+
+    if (typeof this !== "function") {
+      throw new TypeError("not a function")
     }
 
-});
-{% endhighlight %}
-
-[1]: https://daringfireball.net/projects/markdown/
-[2]: https://www.fileformat.info/info/unicode/char/2163/index.htm
-[3]: https://daringfireball.net/projects/markdown/basics
-[4]: https://daringfireball.net/projects/markdown/syntax
-[5]: https://kune.fr/wp-content/uploads/2013/10/ghost-blog.jpg
+	return () => {
+    	// 这里使用箭头函数，保持this指向与bind中this指向一致
+    	this.myCall(context,...params)
+    }
+}
+```
