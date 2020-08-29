@@ -1,0 +1,170 @@
+---
+title: "浏览器底层机制：垃圾回收和内存泄漏"
+layout: post
+date: 2019-06-03 18:20
+image: /assets/images/markdown.jpg
+headerImage: false
+tag:
+    - markdown
+    - elements
+star: false
+category: blog
+author: Lens
+description: 浏览器机制
+---
+
+## 内存管理
+
+内存管理包含以下三个阶段
+![undefined](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/84908/1591282756591-a6942c20-9e21-46ee-b1a5-b665d0d9ab5c.png)
+
+#### 1、分配内存
+
+c 语言中内存需要开发者显式的分配，而在 javascript 中，这一切都是自动完成的。
+
+```
+var a = 1  //  静态内存分配，存储在栈中
+var b = []  //  动态内存分配，开辟一块堆内存
+```
+
+| 静态内存分配         | 动态内存分配           |
+| :------------------- | ---------------------- |
+| 大小必须在编译时知道 | 大小不需要在编译时知道 |
+| 分配给栈             | 分配给堆               |
+
+#### 2、使用内存
+
+对内存的一系列读写操作
+
+#### 3、释放内存
+
+javascript 嵌入了一种称为"垃圾收集器"的机制，它的工作是跟踪内存分配和使用，以便释放掉不被占用的内存。
+
+```
+var a = {name: "lp"}
+a = null 	// 也可以手动的释放内存
+```
+
+## 垃圾回收
+
+-   IE9 以下：引用计数算法
+-   chrome、Safari、IE10 以上等主流浏览器：标记清除算法
+
+#### 1、引用计数算法
+
+-   当声明了一个变量并将一个值赋值给该变量时，则这个值的引用次数就是 1。
+-   如果包含对这个值引用的变量又取得了另外一个值，则这个值的引用次数就减 1。
+-   当这个引用次数变成 0 时，则说明没有办法再访问这个值了，因而就可以将其所占的内存空间给收回来。
+-   这样，垃圾收集器下次再运行时，它就会释放那些引用次数为 0 的值所占的内存
+
+```
+var a = {t: 1}; // 对象 `{t: 1}` 被引用一次
+var b = a; // obj 被引用两次
+a = null; // obj 现在为1次
+b = null; // obj 现在为0次，可回收
+```
+
+循环引用导致问题：
+
+```
+function fun() {
+    let obj1 = {};
+    let obj2 = {};
+    obj1.a = obj2; // obj1 引用 obj2
+    obj2.a = obj1; // obj2 引用 obj1
+}
+fun()
+```
+
+循环引用时，两个对象都至少被引用了一次，将不能自动被回收，造成“内存泄漏”
+
+#### 2、标记清除算法
+
+![undefined](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/84908/1591286274662-fcd1377e-048d-453e-8c1e-f7add87ea45f.png)
+
+-   垃圾收集器构建一个“根”列表,用于保存引用的全局变量。
+-   然后，算法检查所有根及其子节点，并将它们标记为活动的(这意味着它们不是垃圾)。任何根不能到达的地方都将被标记为垃圾。
+-   最后，垃圾收集器释放所有未标记为活动的内存块，并将该内存返回给操作系统。
+    > 在使用标记清除算法时,未引用对象并不会被立即回收.取而代之的做法是,垃圾对象将一直累计到内存耗尽为止.当内存耗尽时,程序将会被挂起,垃圾回收开始执行
+
+##### 缺点：
+
+-   效率比较低（递归与全堆对象遍历），而且在进行 GC 的时候，需要停止应用程序，这会导致用户体验非常差劲。
+-   第二点主要的缺点，则是这种方式清理出来的空闲内存是不连续的，这点不难理解，我们的死亡对象都是随即的出现在内存的各个角落的，现在把它们清除之后，内存的布局自然会乱七八糟。而为了应付这一点，JVM 就不得不维持一个内存的空闲列表，这又是一种开销。而且在分配数组对象的时候，寻找连续的内存空间会不太好找。
+
+## 内存泄漏
+
+#### 1、什么是内存泄漏
+
+在一些特殊情况下，垃圾回收器并不能准确的计算那些内存需要被回收，造成一些没有使用的内存无法被释放，产生"内存泄漏"
+
+#### 2、引起内存泄漏的一些情况
+
+-   闭包引起的内存泄漏
+
+```
+function fun () {
+        var theThing = null
+        var replaceThing = function () {
+            var originalThing = theThing
+            var unused = function () {
+                if (originalThing)
+                    console.log("hi")
+            }
+            theThing = {
+                longStr: new Array(1000000).join('*'),
+                someMethod: function someMethod() {
+                    console.log('someMessage')
+                }
+            };
+        };
+        setInterval(replaceThing,100)
+}
+```
+
+-   意外的全局变量引起的内存泄漏
+
+```
+function fun(arg) {
+  name = "lp";
+}
+name成为一个全局变量，只有在浏览器关闭后才会被销毁
+```
+
+-   没有清理的 DOM 元素引起的内存泄漏
+
+```
+var elements={
+    image: document.getElementById("image")
+};
+function doStuff(){
+    image.src="http://some.url/image";
+}
+document.body.removeChild(document.getElementById('image'))  //  虽然删除了image，但是elements中还保留着对image的引用，所以内存不会被清除
+```
+
+-   被遗忘的定时器或者回调函数
+
+```
+var someResource = getData();
+setInterval(function() {
+   var node = document.getElementById('Node');
+   if(node) {
+       node.innerHTML = JSON.stringify(someResource));
+   }
+}, 1000);
+```
+
+#### 3、React 中的内存泄漏
+
+![undefined](https://intranetproxy.alipay.com/skylark/lark/0/2020/png/84908/1591339392196-9ac5897a-8b57-4023-8308-dcafdc5dc941.png)
+
+参考：
+
+[标记清除算法的简单实现](https://cloud.tencent.com/developer/article/1610560)
+
+[chrome 内存查看方法](https://cloud.tencent.com/developer/article/1444558)
+
+[标记清除算法](https://www.ituring.com.cn/book/tupubarticle/10955)
+
+[垃圾回收机制](https://zh.javascript.info/garbage-collection#nei-bu-suan-fa)
