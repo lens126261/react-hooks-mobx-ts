@@ -1,0 +1,83 @@
+---
+title: "函数的防抖和节流"
+layout: post
+date: 2019-06-18 16:00
+image: /assets/images/markdown.jpg
+headerImage: false
+tag:
+    - markdown
+    - elements
+star: false
+category: blog
+author: Lens
+description: 函数
+---
+
+## 防抖
+
+当频繁触发多次时，在指定时间内只执行一次。
+可以在第一次触发后立即执行，也可以在最后一次触发后执行。
+
+应用场景：如异步搜索，用户在不断输入时，可以用防抖来减少请求，输入完成后再调用接口。
+
+```
+/**
+ * 防抖函数
+ * @param {*} func
+ * @param {*} await 延时时间，在这段时间内频繁触发，只执行一次
+ * @param {*} immediate 是否立即执行，默认false
+ */
+function debounce(func, await = 500, isImmediate = false) {
+  let timer = null;
+  return function (...args) {
+    const context = this;
+    let now = isImmediate && !timer;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      if (!now) {
+        func.apply(context, args); // 执行func
+        timer = null;
+      }
+    }, await);
+    // 立即执行
+    if (now) {
+      func.apply(context, args);
+    }
+  };
+}
+```
+
+## 节流
+
+当频繁触发多次时，每隔指定时间执行一次，控制执行频率。
+
+应用场景：如监听滚动事件，每隔一段时间执行一次，而不是滚动的过程中持续执行。
+
+```
+/**
+ *
+ * @param {*} func
+ * @param {*} wait 间隔时间
+ */
+function throttle(func, wait) {
+  let timer = null;
+  let previous = 0; // 记录上一次操作时间
+  return function (...args) {
+    let now = new Date(); // 记录当前操作时间
+    let remain = wait - (now - previous); // 记录还有多久到达指定的间隔时间
+    // 到达间隔时间，则执行一次
+    if (remain <= 0) {
+      func.apply(this, ...args);
+      previous = new Date();
+      timer = null;
+    } else if (!timer) {
+      // 未到达间隔时间，则等待
+      timer = setTimeout(() => {
+        func.apply(this, ...args);
+        previous = new Date();
+        timer = null;
+      }, remain);
+    }
+  };
+}
+```
