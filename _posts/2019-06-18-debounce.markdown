@@ -24,24 +24,28 @@ description: 函数
 /**
  * 防抖函数
  * @param {*} func
- * @param {*} await 延时时间，在这段时间内频繁触发，只执行一次
- * @param {*} immediate 是否立即执行，默认false
+ * @param {*} wait 延时时间，在这段时间内频繁触发，只执行一次
+ * @param {*} isImmediate 是否立即执行，默认false
  */
-function debounce(func, await = 500, isImmediate = false) {
+function debounce(func, wait = 500, isImmediate = false) {
   let timer = null;
+  let flag = true;
   return function (...args) {
-    const context = this;
-    let now = isImmediate && !timer;
     clearTimeout(timer);
-    timer = setTimeout(() => {
-      if (!now) {
-        func.apply(context, args); // 执行func
-        timer = null;
-      }
-    }, await);
     // 立即执行
-    if (now) {
-      func.apply(context, args);
+    if (isImmediate) {
+      if (flag) {
+        func.apply(this, args);
+        flag = false;
+      }
+      timer = setTimeout(() => {
+        flag = true;
+      }, wait);
+    } else {
+      // 延迟执行
+      timer = setTimeout(() => {
+        func.apply(this, args);
+      }, wait);
     }
   };
 }
