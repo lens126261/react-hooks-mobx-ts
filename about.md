@@ -2,45 +2,107 @@
 title: About
 layout: page
 ---
+
 ![Profile Image]({% if site.external-image %}{{ site.picture }}{% else %}{{ site.url }}/{{ site.picture }}{% endif %})
 
-<p>Lorem Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+# 基本信息
 
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+-   刘朋/男/26 岁
+-   本科/吉林建筑大学
+-   工作年限：3 年
+-   技术博客：https://lenslp.cn
+-   github：https://github.com/lenslp
+-   联系电话：18937708209
+-   邮箱：18937708209@163.com
 
-<h2>Skills</h2>
+# 求职信息
 
-<ul class="skill-list">
-	<li>HTML - Jade - Haml - Erb</li>
-	<li>Responsive (Mobile First)</li>
-	<li>CSS (Stylus, Sass, Less)</li>
-	<li>Css Frameworks (Bootstrap, Foundation)</li>
-	<li>Javascript (Design Patterns, Testes)</li>
-	<li>NodeJS</li>
-	<li>AngularJS - ReactJS</li>
-	<li>Grunt - Gulp - Yeoman</li>
-	<li>Git</li>
-	<li>PHP</li>
-	<li>Python</li>
-	<li>MySQL - MongoDB</li>
-	<li>Scrum and Kanban</li>
-	<li>TDD e Continuous Integration</li>
-</ul>
+-   求职岗位：web 前端开发
+-   期望薪资：16k-18k
 
-<h2>Projects</h2>
+# 专业技能
 
-<ul>
-	<li><a href="https://github.com/">Lorem Lorem</a></li>
-	<li><a href="https://github.com/">Ipsum Dolor</a></li>
-	<li><a href="https://github.com/">Dolor Lorem</a></li>
-</ul>
+-   html5、css3
+-   es6
+-   typescript
+-   react+hooks
+-   mobx、redux
+-   webpack
+-   less
+-   G2、Echarts
+
+# 工作经历
+
+**2018.12-至今**
+
+-   公司名称：鑫蜂维网络科技有限公司（杭州）
+-   职位名称：前端开发工程师
+-   工作描述：
+    1、参与需求评审，独立负责项目开发
+    2、封装组件库，提高团队开发效率，统一团队 eslint 规范
+    3、负责：藏经阁搭建平台、合作伙伴重构等项目，参与：摩天轮（用户体验平台）、企业服务（后台）等项目
+
+**2017.11-2018.12**
+
+-   公司名称：仁励窝网络科技有限公司 （杭州）
+-   职位名称：前端开发工程师
+-   工作描述：
+    1、参与新项目开发与旧项目维护
+    2、快速响应用户问题并解决线上 bug
+    3、负责项目主要有：智能薪酬、智能社保、工资条等
+
+# 项目经验
+
+**藏经阁项目**
+
+-   项目介绍：钉钉官网客户案例搭建平台。提供基础的组件和模板、以及预览、审批、发布等功能，让运营人员可以自己去搭建客户案例的页面。
+-   技术栈：react+hooks+typescript+webpack+formRender
+-   实现思路：
+    1、组件化，将页面拆分成多个组件，可以自由组合成模版
+    2、组件编辑表单可配置：使用 form-render，通过配置 json 文件快速生成表单
+    3、渲染引擎：数据与组件 UI 的映射，视图更新
+-   成果：
+    1、运营人员可以自行搭建案例页面，效率得到提高
+    2、节省开发资源
+
+**合作伙伴平台重构**
+
+-   项目介绍：为应用服务商、定制服务商、部署服务商、销售服务商等入驻钉钉平台，提供流程管理。核心流程包括：服务资料填写、保证金缴纳、合同管理
+-   重构原因：
+    1、入驻流程不规范，之前是两个团队进行开发，有两套项目，维护困难。
+    2、不同入驻流程，代码大量复制粘贴且无法复用
+    3、表单通过 pass 平台搭建，排查问题困难
+-   重构方案：
+    1、入驻流程规范化，通过后端返回 status+viewModel 渲染对应页面，触发 action 后重新拉取 status 和 viewModel 展示下一个页面
+    2、基础组件、业务组件、页面组件可复用，且支持扩展
+    3、用 uform 重写表单，可通过 json schema 配置快速生成表单
+-   技术栈：umi+uform
+-   成果：
+    1、入驻流程规范化，适用于不同服务商类型，且可扩展
+    2、删掉大量重复、冗余代码，提高可复用性
+
+**摩天轮项目**
+
+-   项目介绍：钉钉产品体验平台。根据用户提交故障量、有效需求实现率，需求处理时效等指标同比昨天上升或下降趋势，分析当前产品健康度。及时向业务线推送预警信息，并可指派任务给相关人员。
+-   技术栈：react+hooks+typescript+less+webpack+BizCharts
+-   难点：后端资源不足，投入时间少。接口不规范，数据计算放在前端、没有做缓存等问题。
+-   解决：
+    1、定义 service 层作为处理业务逻辑的中间站，将后端数据处理成前端需要的（指标同比计算，日期转换等），通过 ts 定义好接口
+    2、中间件机制。模仿 redux，采用洋葱模型中间件，对请求层进行处理，包含超时、重试、兜底、缓存、异常处理中间件
+-   成果
+    1、各业务线早会都会通过摩天轮来查看产品健康度
+    2、通过异动预警和任务流功能帮助业务线发现问题、解决问题
+
+**智能社保**
+
+-   项目介绍：为用户提供投、停保，及账单管理等社保管理服务
+-   技术栈：react+antd+mobx+webpack
+-   技术选型：状态管理使用 mobx，主要基于以下几点考虑：
+    1、响应式编程，状态变更，自动触发更新
+    2、相比 redux 上手快，减少样板代码
+    3、异步操作不需要额外的中间件
+
+# 个人爱好
+
+-   摄影
+-   电影
